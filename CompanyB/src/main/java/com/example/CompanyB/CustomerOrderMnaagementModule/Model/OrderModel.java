@@ -29,17 +29,16 @@ public class OrderModel {
     private Long orderID;
     private String customerID;
 
-    private int layers;
-    private int quantity;
-    private double thickness;
-    private List<Double> dimensions;
-
     private byte[] pcbFile;
 
+    private OrderInfoC orderInfo;
+
+   
     private boolean simulationStatus;
     private boolean partsAvailable;
 
-    private String deliveryAddress;
+    private DeliveryInfoC deliveryInfo;
+
     private double payment;
     private boolean paymentDone;
 
@@ -48,5 +47,13 @@ public class OrderModel {
 
     @DocumentReference
     private List<Feedback> feedback;
+
+    public OrderModel(String customerID, byte[] pcbFile, long orderID) {
+        this.customerID = customerID;
+        this.pcbFile = pcbFile;
+        this.orderID = orderID;
+    }
+
+    
 
 }

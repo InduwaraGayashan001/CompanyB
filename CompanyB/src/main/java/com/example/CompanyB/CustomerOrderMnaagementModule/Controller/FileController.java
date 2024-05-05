@@ -19,10 +19,10 @@ public class FileController {
 	@Autowired
 	private FileService service;
 
-	@PatchMapping("/{orderID}/upload")
-	public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file, @PathVariable Long orderID)
+	@PostMapping("/{customerID}/upload")
+	public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file, @PathVariable String customerID)
 			throws IOException {
-		String uploadImage = service.uploadImage(file, orderID);
+		String uploadImage = service.uploadImage(file, customerID);
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(uploadImage);
 	}

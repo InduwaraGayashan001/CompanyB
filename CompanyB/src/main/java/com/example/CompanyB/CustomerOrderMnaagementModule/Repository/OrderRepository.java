@@ -1,5 +1,6 @@
 package com.example.CompanyB.CustomerOrderMnaagementModule.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
@@ -11,6 +12,5 @@ import com.example.CompanyB.CustomerOrderMnaagementModule.Model.OrderModel;
 @Repository
 public interface OrderRepository extends MongoRepository<OrderModel, ObjectId> {
     Optional<OrderModel> findOrderByOrderID(Long orderID);
-
-    Optional<OrderModel> findOrderByCustomerID(String customerId);
+    List<OrderModel> findOrderByCustomerID(String customerId);
 }

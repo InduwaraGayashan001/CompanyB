@@ -2,22 +2,21 @@ package com.example.CompanyB.CustomerOrderMnaagementModule.Service;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Objects;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Update;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
-import com.example.CompanyB.CustomerOrderMnaagementModule.Model.DatabaseSequence;
+
+import com.example.CompanyB.CustomerOrderMnaagementModule.Model.DeliveryInfoC;
+import com.example.CompanyB.CustomerOrderMnaagementModule.Model.OrderInfoC;
 import com.example.CompanyB.CustomerOrderMnaagementModule.Model.OrderModel;
 import com.example.CompanyB.CustomerOrderMnaagementModule.Repository.OrderRepository;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import static org.springframework.data.mongodb.core.query.Query.query;
+
 
 @Service
 public class OrderService {
@@ -25,32 +24,27 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private MongoOperations mongoOperations;
-
-    public long generateSequence(String seqName) {
-        DatabaseSequence counter = mongoOperations.findAndModify(query(where("id_").is(seqName)),
-                new Update().inc("seq", 1), FindAndModifyOptions.options().returnNew(true).upsert(true),
-                DatabaseSequence.class);
-        return !Objects.isNull(counter) ? counter.getSeq() : 1;
-    }
-
+    
     // Getting the all orders
     public List<OrderModel> allOrders() {
         return orderRepository.findAll();
 
     }
 
-    // Getting the order by customer id
+    // Getting the order by order id
     public Optional<OrderModel> singleOrder(Long orderID) {
         return orderRepository.findOrderByOrderID(orderID);
     }
 
-    // Creating a new order
-    public OrderModel createOrder(OrderModel order) {
-        order.setOrderID(generateSequence(OrderModel.SEQUENCE_NAME));
-        return orderRepository.save(order);
+    // Getting the all orders of a customer
+    public List<OrderModel> allCustomerOrders(String customerID) {
+        return orderRepository.findOrderByCustomerID(customerID);
+
     }
+
+
+
+    
 
     // Updating the order status
     public OrderModel updateOrderStatus(OrderModel existingOrder) {
@@ -70,33 +64,21 @@ public class OrderService {
         return existingOrder;
 
     }
+    
+    // Updating the order info
+    public OrderModel updateOrderInfo(Long orderID, OrderInfoC orderInfo) {
+        Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
+        if (existingOrder.isPresent()) {
+            Field field = ReflectionUtils.findField(OrderModel.class, "orderInfo");
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, existingOrder.get(),orderInfo);
+            return orderRepository.save(existingOrder.get());
+        }
 
-    /*
-     * @SuppressWarnings("null")
-     * public OrderModel updateOrder(String customerID, Map<String, Object> fields)
-     * {
-     * Optional<OrderModel> existingOrder =
-     * orderRepository.findOrderByCustomerID(customerID);
-     * if (existingOrder.isPresent()) {
-     * fields.forEach((key, value) -> {
-     * Field field = ReflectionUtils.findField(OrderModel.class, key);
-     * field.setAccessible(true);
-     * ReflectionUtils.setField(field, existingOrder.get(), value);
-     * });
-     * if (existingOrder.get().isSimulationStatus() &&
-     * existingOrder.get().isPartsAvailable() == true) {
-     * System.out.println("Order is confirmed");
-     * existingOrder.get().setConfirmation(true);
-     * existingOrder.get().setManufactureDone("Processing");
-     * } else {
-     * existingOrder.get().setConfirmation(false);
-     * existingOrder.get().setManufactureDone(null);
-     * }
-     * return orderRepository.save(existingOrder.get());
-     * }
-     * return null;
-     * }
-     */
+        return null;
+    }
+    
+    
 
     // Updating the simaualtion staus
     // @SuppressWarnings("null")
@@ -140,14 +122,14 @@ public class OrderService {
         return null;
     }
 
-    // Updating the delivery address
+    // Updating the delivery info
     // @SuppressWarnings("null")
-    public OrderModel updateDeliveryAddress(Long orderID, String deliveryAddress) {
+    public OrderModel updateDeliverInfo(Long orderID, DeliveryInfoC deliveryInfo) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
-            Field field = ReflectionUtils.findField(OrderModel.class, "deliveryAddress");
+            Field field = ReflectionUtils.findField(OrderModel.class, "deliveryInfo");
             field.setAccessible(true);
-            ReflectionUtils.setField(field, existingOrder.get(), deliveryAddress);
+            ReflectionUtils.setField(field, existingOrder.get(), deliveryInfo);
             return orderRepository.save(existingOrder.get());
         }
 

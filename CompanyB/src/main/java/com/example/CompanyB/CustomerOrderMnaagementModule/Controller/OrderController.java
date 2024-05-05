@@ -6,19 +6,24 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.CompanyB.CustomerOrderMnaagementModule.Model.DeliveryInfoC;
+import com.example.CompanyB.CustomerOrderMnaagementModule.Model.Feedback;
+import com.example.CompanyB.CustomerOrderMnaagementModule.Model.OrderInfoC;
 import com.example.CompanyB.CustomerOrderMnaagementModule.Model.OrderModel;
 import com.example.CompanyB.CustomerOrderMnaagementModule.Service.OrderService;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/customer/order")
 
 public class OrderController {
@@ -26,23 +31,37 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // Creating a new order
-    @PostMapping
-    public OrderModel addProduct(@RequestBody OrderModel order) {
-        return orderService.createOrder(order);
-    }
-
-    // Getting all orders
     @GetMapping
     public ResponseEntity<List<OrderModel>> getallOrders() {
         return new ResponseEntity<List<OrderModel>>(orderService.allOrders(), HttpStatus.OK);
     }
+    
 
-    // Getting order by customer id
+    // Getting order by order id
     @GetMapping("/{orderID}")
     public ResponseEntity<Optional<OrderModel>> getSingleOrder(@PathVariable Long orderID) {
         return new ResponseEntity<Optional<OrderModel>>(orderService.singleOrder(orderID), HttpStatus.OK);
     }
+
+    // Getting the all orders of a customer
+    @GetMapping("/{customerID}/all")
+    public ResponseEntity<List<OrderModel>> getallCustomerOrders(@PathVariable String customerID) {
+        return new ResponseEntity<List<OrderModel>>(orderService.allCustomerOrders(customerID), HttpStatus.OK);
+    }
+
+    // Getting the delievery info
+    @GetMapping("/{orderID}/orderInfo")
+    public ResponseEntity<OrderInfoC> getOrderInfo(@PathVariable Long orderID) {
+        Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
+        if (orderOptional.isPresent()) {
+            OrderModel order = orderOptional.get();
+            OrderInfoC orderInfo = order.getOrderInfo();
+            return new ResponseEntity<>(orderInfo, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     // Getting the simulation status
     @GetMapping("/{orderID}/simulation")
@@ -109,14 +128,14 @@ public class OrderController {
         }
     }
 
-    // Getting the delievery address
-    @GetMapping("/{orderID}/address")
-    public ResponseEntity<String> getAddress(@PathVariable Long orderID) {
+    // Getting the delievery info
+    @GetMapping("/{orderID}/deliveryInfo")
+    public ResponseEntity<DeliveryInfoC> getDeliveryInfo(@PathVariable Long orderID) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
         if (orderOptional.isPresent()) {
             OrderModel order = orderOptional.get();
-            String deliveryAddress = order.getDeliveryAddress();
-            return new ResponseEntity<>(deliveryAddress, HttpStatus.OK);
+            DeliveryInfoC deliveryInfo = order.getDeliveryInfo();
+            return new ResponseEntity<>(deliveryInfo, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -135,16 +154,36 @@ public class OrderController {
         }
     }
 
-    /*
-     * @PatchMapping("/{customerId}")
-     * public OrderModel updateOrder(@PathVariable String customerId, @RequestBody
-     * Map<String, Object> fields) {
-     * return orderService.updateOrder(customerId, fields);
-     * }
-     */
+    // Getting the feedback
+    @GetMapping("/{orderID}/feedback")
+    public ResponseEntity<List<Feedback>> getFeedback(@PathVariable Long orderID) {
+        Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
+        if (orderOptional.isPresent()) {
+            OrderModel order = orderOptional.get();
+            List<Feedback> feedback = order.getFeedback();
+            return new ResponseEntity<>(feedback, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+
+
+    // Updating the order information
+    @PatchMapping("/{orderID}/orderInfo")
+    public ResponseEntity<OrderModel> updateDeliveryInfo(@PathVariable Long orderID,@RequestBody OrderInfoC orderInfo) {
+        Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
+        if (orderOptional.isPresent()) {
+            OrderModel orderModel = orderService.updateOrderInfo(orderID, orderInfo);
+            return new ResponseEntity<>(orderModel, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     // Updating the simulation status
-    @PatchMapping("/{orderID}/setSimulation")
+    @PatchMapping("/{orderID}/simulation")
     public ResponseEntity<OrderModel> updateSimulationStatus(@PathVariable Long orderID,
             @RequestBody boolean simulationStatus) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
@@ -157,7 +196,7 @@ public class OrderController {
     }
 
     // Updating the parts availability
-    @PatchMapping("/{orderID}/setParts")
+    @PatchMapping("/{orderID}/parts")
     public ResponseEntity<OrderModel> updatePartsAvailable(@PathVariable Long orderID,
             @RequestBody boolean partsAvailable) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
@@ -170,7 +209,7 @@ public class OrderController {
     }
 
     // Updating the total price of the order
-    @PatchMapping("/{orderID}/setPrice")
+    @PatchMapping("/{orderID}/price")
     public ResponseEntity<OrderModel> updatePayment(@PathVariable Long orderID, @RequestBody double payment) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
         if (orderOptional.isPresent()) {
@@ -181,13 +220,12 @@ public class OrderController {
         }
     }
 
-    // Updating the delivery address
-    @PatchMapping("/{orderID}/setAddress")
-    public ResponseEntity<OrderModel> updateDeliveryAddress(@PathVariable Long orderID,
-            @RequestBody String deliveryAddress) {
+    // Updating the delivery info
+    @PatchMapping("/{orderID}/deliveryInfo")
+    public ResponseEntity<OrderModel> updateDeliveryInfo(@PathVariable Long orderID,@RequestBody DeliveryInfoC deliveryInfo) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
         if (orderOptional.isPresent()) {
-            OrderModel orderModel = orderService.updateDeliveryAddress(orderID, deliveryAddress);
+            OrderModel orderModel = orderService.updateDeliverInfo(orderID, deliveryInfo);
             return new ResponseEntity<>(orderModel, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -195,7 +233,7 @@ public class OrderController {
     }
 
     // Updating the payment status
-    @PatchMapping("/{orderID}/setPayment")
+    @PatchMapping("/{orderID}/payment")
     public ResponseEntity<OrderModel> updatePaymentStatus(@PathVariable Long orderID,
             @RequestBody boolean paymentDone) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
@@ -208,7 +246,7 @@ public class OrderController {
     }
 
     // Updating the manufacturing status
-    @PatchMapping("/{orderID}/setManufacturing")
+    @PatchMapping("/{orderID}/manufacturing")
     public ResponseEntity<OrderModel> updateManufactureDone(@PathVariable Long orderID,
             @RequestBody String manufactureDone) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
@@ -221,7 +259,7 @@ public class OrderController {
     }
 
     // Updating the delivery status
-    @PatchMapping("/{orderID}/setDelivery")
+    @PatchMapping("/{orderID}/delivery")
     public ResponseEntity<OrderModel> updateDeliveryStatus(@PathVariable Long orderID,
             @RequestBody String deliveryStatus) {
         Optional<OrderModel> orderOptional = orderService.singleOrder(orderID);
