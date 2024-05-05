@@ -66,6 +66,7 @@ public class OrderService {
     }
     
     // Updating the order info
+    @SuppressWarnings("null")
     public OrderModel updateOrderInfo(Long orderID, OrderInfoC orderInfo) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -82,6 +83,7 @@ public class OrderService {
 
     // Updating the simaualtion staus
     // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updateSimulationStatus(Long orderID, Boolean simulationStatus) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -96,6 +98,7 @@ public class OrderService {
 
     // Updating the availability of the parts
     // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updatePartsAvailable(Long orderID, Boolean partsAvailable) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -109,7 +112,7 @@ public class OrderService {
     }
 
     // Updating the total price of the order
-    // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updatePayment(Long orderID, double payment) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -123,7 +126,7 @@ public class OrderService {
     }
 
     // Updating the delivery info
-    // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updateDeliverInfo(Long orderID, DeliveryInfoC deliveryInfo) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -137,7 +140,7 @@ public class OrderService {
     }
 
     // Updating the payment status
-    // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updatePaymentStaus(Long orderID, Boolean paymentDone) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -155,7 +158,7 @@ public class OrderService {
     }
 
     // Updating the manufacturing status
-    // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updateManufactueDone(Long orderID, String maufactureDone) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
@@ -172,7 +175,7 @@ public class OrderService {
     }
 
     // Updating the delivery status
-    // @SuppressWarnings("null")
+    @SuppressWarnings("null")
     public OrderModel updateDeliveryStatus(Long orderID, String deliveryStatus) {
         Optional<OrderModel> existingOrder = orderRepository.findOrderByOrderID(orderID);
         if (existingOrder.isPresent()) {
